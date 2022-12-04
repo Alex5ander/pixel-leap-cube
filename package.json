@@ -1,0 +1,25 @@
+{
+  "name": "jump-game",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "start": "next start",
+    "dev": "next dev"
+  },
+  "keywords": [],
+  "author": "Alexsander Gutierrez Gonçalves",
+  "license": "ISC",
+  "dependencies": {
+    "mongodb": "^4.12.1",
+    "next": "^13.0.6",
+    "phaser": "^3.55.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "18.0.26",
+    "vercel": "^28.7.2"
+  }
+}

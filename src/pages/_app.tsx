@@ -46,7 +46,7 @@ export default function App() {
         create: function () {
           this.add.image(0, 0, 'background').setOrigin(0);
 
-          const player = this.physics.add.sprite(100, 100, 'player');
+          this.player = this.physics.add.sprite(100, 960 - (64 + 32), 'player');
 
           const floor = this.physics.add.staticSprite(
             540 / 2,
@@ -55,33 +55,50 @@ export default function App() {
           );
 
           obstacle = this.physics.add.sprite(
-            540 + 32,
+            1000,
             960 - 320 + 64 + 32,
             'obstacle'
           );
 
           obstacle.body.allowGravity = false;
 
-          this.physics.add.collider(player, [obstacle, floor]);
+          this.physics.add.collider(this.player, floor);
+          let t = this;
+          this.physics.add.collider(this.player, obstacle, function () {
+            t.scene.pause();
 
-          obstacle.setAccelerationX(-300);
+            t.add
+              .text(540 / 2, 960 / 2, 'Game Over', {
+                color: '#fff',
+                fontSize: '24px',
+                fontFamily: '"Press Start 2P"',
+              })
+              .setOrigin(0.5);
+
+            setTimeout(() => {
+              t.scene.stop('game');
+              t.scene.start('main ');
+            }, 3000);
+          });
+
+          obstacle.setAccelerationX(-200);
 
           scoreText = this.add.text(16, 16, 'score: 0', {
             fontSize: '32px',
             color: '#fff',
             fontFamily: "'Press Start 2P'",
           });
-
-          this.input.on('pointerdown', function () {
-            player.setVelocityY(-player.body.mass * 500);
-          });
         },
         update: function () {
+          const { activePointer } = this.input;
+          if (this.player.body.velocity.y === 0 && activePointer.isDown) {
+            this.player.setVelocityY(-981);
+          }
           scoreText.setText('score: ' + score);
 
           if (obstacle.body.x < -64) {
             obstacle.setX(1000);
-            obstacle.setVelocityX(-300);
+            obstacle.setVelocityX(-200);
             score += 1;
           }
         },
@@ -94,7 +111,9 @@ export default function App() {
         physics: {
           default: 'arcade',
           arcade: {
-            gravity: { y: 1000 },
+            gravity: { y: 981 },
+            fixedStep: true,
+            timeScale: 0.7,
           },
         },
         pixelArt: true,

@@ -75,12 +75,6 @@ export default function App() {
                 fontFamily: '"Press Start 2P"',
               })
               .setOrigin(0.5);
-
-            setTimeout(() => {
-              t.scene.stop('game');
-              t.scene.start('main ');
-              t.scene.resume();
-            }, 3000);
           });
 
           obstacle.setAccelerationX(-200);
@@ -96,6 +90,7 @@ export default function App() {
           if (player.body.velocity.y === 0 && activePointer.isDown) {
             player.setVelocityY(-981);
           }
+
           scoreText.setText('score: ' + score);
 
           if (obstacle.body.x < -64) {

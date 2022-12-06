@@ -79,6 +79,7 @@ export default function App() {
             setTimeout(() => {
               t.scene.stop('game');
               t.scene.start('main ');
+              t.scene.resume();
             }, 3000);
           });
 

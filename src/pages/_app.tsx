@@ -66,8 +66,6 @@ export default function App() {
           this.physics.add.collider(player, floor);
           let t = this;
           this.physics.add.collider(player, obstacle, function () {
-            t.scene.pause();
-
             t.add
               .text(540 / 2, 960 / 2, 'Game Over', {
                 color: '#fff',
@@ -75,6 +73,14 @@ export default function App() {
                 fontFamily: '"Press Start 2P"',
               })
               .setOrigin(0.5);
+
+            t.time.addEvent({
+              delay: 1000,
+              callback: function () {
+                t.scene.pause();
+                t.scene.start('main');
+              },
+            });
           });
 
           obstacle.setAccelerationX(-200);
@@ -118,10 +124,12 @@ export default function App() {
           mode: Phaser.Scale.FIT,
           autoCenter: Phaser.Scale.CENTER_BOTH,
         },
+        scene: null,
       });
 
       game.scene.add('main', mainScene);
       game.scene.add('game', gameScene);
+
       game.scene.start('main');
     })();
   }, []);

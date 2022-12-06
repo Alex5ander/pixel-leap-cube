@@ -8,6 +8,7 @@ export default function App() {
       let scoreText = null;
       let score = 0;
       let obstacle: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody = null;
+      let player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody = null;
 
       const mainScene: Phaser.Types.Scenes.CreateSceneFromObjectConfig = {
         preload: function () {
@@ -46,7 +47,7 @@ export default function App() {
         create: function () {
           this.add.image(0, 0, 'background').setOrigin(0);
 
-          this.player = this.physics.add.sprite(100, 960 - (64 + 32), 'player');
+          player = this.physics.add.sprite(100, 960 - (64 + 32), 'player');
 
           const floor = this.physics.add.staticSprite(
             540 / 2,
@@ -62,9 +63,9 @@ export default function App() {
 
           obstacle.body.allowGravity = false;
 
-          this.physics.add.collider(this.player, floor);
+          this.physics.add.collider(player, floor);
           let t = this;
-          this.physics.add.collider(this.player, obstacle, function () {
+          this.physics.add.collider(player, obstacle, function () {
             t.scene.pause();
 
             t.add
@@ -91,8 +92,8 @@ export default function App() {
         },
         update: function () {
           const { activePointer } = this.input;
-          if (this.player.body.velocity.y === 0 && activePointer.isDown) {
-            this.player.setVelocityY(-981);
+          if (player.body.velocity.y === 0 && activePointer.isDown) {
+            player.setVelocityY(-981);
           }
           scoreText.setText('score: ' + score);
 

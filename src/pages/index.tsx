@@ -4,20 +4,14 @@ export default () => {
   useEffect(() => {
     (async () => {
       const Phaser = await import(`phaser`);
-      let scoreText = null;
+      let scoreText: Phaser.GameObjects.Text;
       let score = 0;
-      let obstacle: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody = null;
-      let player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody = null;
 
-      const mainScene: Phaser.Types.Scenes.CreateSceneFromObjectConfig = {
-        preload: function () {
-          this.load.image('background', '/assets/background.png');
-          this.load.image('floor', '/assets/floor.png');
-        },
-        create: async function () {
-          this.add.image(0, 0, 'background').setOrigin(0);
-          this.add.image(0, 960 - 64, 'floor').setOrigin(0);
-
+      class MainScene extends Phaser.Scene {
+        constructor() {
+          super('mainScene');
+        }
+        create() {
           this.add
             .text(540 / 2, 960 / 2, 'Click to Start', {
               color: '#fff',
@@ -29,86 +23,86 @@ export default () => {
           this.input.once(
             'pointerdown',
             function () {
-              this.scene.start('game');
+              this.scene.start('gameScene');
             },
             this
           );
-        },
-      };
+        }
+      }
 
-      const gameScene: Phaser.Types.Scenes.CreateSceneFromObjectConfig = {
-        preload: function () {
-          this.load.image('background', '/assets/background.png');
-          this.load.image('floor', '/assets/floor.png');
-          this.load.image('player', '/assets/player.png');
-          this.load.image('obstacle', '/assets/obstacle.png');
-        },
-        create: function () {
-          this.add.image(0, 0, 'background').setOrigin(0);
+      let platforms: Phaser.Physics.Arcade.StaticGroup;
+      let rect: Phaser.GameObjects.GameObject;
+      let controls: Phaser.Types.Input.Keyboard.CursorKeys;
 
-          player = this.physics.add.sprite(
-            this.game.canvas.width / 2,
-            960 - (64 + 32),
-            'player'
-          );
+      class GameScene extends Phaser.Scene {
+        constructor() {
+          super('gameScene');
+        }
+        create() {
+          controls = this.input.keyboard.createCursorKeys();
+          rect = this.add.rectangle(50, 0, 32, 32, 0xff0000);
+          rect = this.physics.add.existing(rect);
+          const rb = rect.body as Phaser.Physics.Arcade.Body;
+          rb.setBounceY(10);
+          rb.setMaxVelocityY(2000);
 
-          const floor = this.physics.add.staticSprite(
-            540 / 2,
-            960 - 32,
-            'floor'
-          );
+          platforms = this.physics.add.staticGroup();
 
-          obstacle = this.physics.add.sprite(
-            1000,
-            960 - 320 + 64 + 32,
-            'obstacle'
-          );
+          for (let i = 0; i < 4; i++) {
+            const obstacle = this.add.rectangle(0, 0, 200, 32, 0x00ff00);
 
-          obstacle.body.allowGravity = false;
+            if (i === 0) {
+              obstacle.x = 50;
+              obstacle.y = 32;
+            } else {
+              obstacle.x = Phaser.Math.Between(0, 960);
+              obstacle.y = i * 150;
+            }
 
-          this.physics.add.collider(player, floor);
-          let t = this;
-          this.physics.add.collider(player, obstacle, function () {
-            t.add
-              .text(540 / 2, 960 / 2, 'Game Over', {
-                color: '#fff',
-                fontSize: '24px',
-                fontFamily: '"Press Start 2P"',
-              })
-              .setOrigin(0.5);
+            platforms.add(obstacle);
+          }
 
-            t.time.addEvent({
-              delay: 1000,
-              callback: function () {
-                t.scene.pause();
-                t.scene.start('main');
-              },
-            });
-          });
+          this.cameras.main.startFollow(rect);
+          this.cameras.main.setDeadzone(540);
 
-          obstacle.setAccelerationX(-200);
+          rb.checkCollision.up = false;
+          rb.checkCollision.left = false;
+          rb.checkCollision.right = false;
+
+          this.physics.add.collider(rect, platforms);
 
           scoreText = this.add.text(16, 16, 'score: 0', {
             fontSize: '32px',
             color: '#fff',
             fontFamily: "'Press Start 2P'",
           });
-        },
-        update: function () {
-          const { activePointer } = this.input;
-          if (player.body.velocity.y === 0 && activePointer.isDown) {
-            player.setVelocityY(-981);
+
+          scoreText.setScrollFactor(0);
+        }
+        update() {
+          const rb = rect.body as Phaser.Physics.Arcade.Body;
+          if (controls.left.isDown) {
+            rb.setVelocityX(-100);
+          }
+          if (controls.right.isDown) {
+            rb.setVelocityX(100);
           }
 
-          scoreText.setText('score: ' + score);
-
-          if (obstacle.body.x < -64) {
-            obstacle.setX(1000);
-            obstacle.setVelocityX(-200);
+          if (rb.velocity.y < 0) {
             score += 1;
+            scoreText.setText('Score: ' + score);
           }
-        },
-      };
+
+          platforms.children.iterate((child: any) => {
+            const scrollY = this.cameras.main.scrollY;
+            if (child.y >= scrollY + 1300) {
+              child.x = Phaser.Math.Between(-295, 490);
+              child.y = scrollY - Phaser.Math.Between(80, 100);
+              child.body.updateFromGameObject();
+            }
+          });
+        }
+      }
 
       const game = new Phaser.Game({
         type: Phaser.CANVAS,
@@ -116,24 +110,15 @@ export default () => {
         height: 960,
         physics: {
           default: 'arcade',
-          arcade: {
-            gravity: { y: 981 },
-            fixedStep: true,
-            timeScale: 0.7,
-          },
+          arcade: { gravity: { y: 981 }, fixedStep: true, timeScale: 0.7 },
         },
         pixelArt: true,
         scale: {
           mode: Phaser.Scale.FIT,
           autoCenter: Phaser.Scale.CENTER_BOTH,
         },
-        scene: null,
+        scene: [MainScene, GameScene],
       });
-
-      game.scene.add('main', mainScene);
-      game.scene.add('game', gameScene);
-
-      game.scene.start('main');
     })();
   }, []);
 

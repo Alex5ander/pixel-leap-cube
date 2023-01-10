@@ -30,6 +30,29 @@ export default () => {
         }
       }
 
+      class GameOver extends Phaser.Scene {
+        constructor() {
+          super('gameOver');
+        }
+        create() {
+          this.add
+            .text(540 / 2, 960 / 2, 'Game Over', {
+              color: '#fff',
+              fontSize: '24px',
+              fontFamily: '"Press Start 2P"',
+            })
+            .setOrigin(0.5);
+
+          this.input.once(
+            'pointerdown',
+            function () {
+              this.scene.start('mainScene');
+            },
+            this
+          );
+        }
+      }
+
       let platforms: Phaser.Physics.Arcade.StaticGroup;
       let rect: Phaser.GameObjects.GameObject;
       let controls: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -38,32 +61,36 @@ export default () => {
         constructor() {
           super('gameScene');
         }
+        randomPositionX() {
+          return Phaser.Math.Between(-170, 170);
+        }
         create() {
           controls = this.input.keyboard.createCursorKeys();
           rect = this.add.rectangle(50, 0, 32, 32, 0xff0000);
           rect = this.physics.add.existing(rect);
           const rb = rect.body as Phaser.Physics.Arcade.Body;
           rb.setBounceY(10);
-          rb.setMaxVelocityY(2000);
+          rb.setMaxVelocityY(1000);
 
           platforms = this.physics.add.staticGroup();
 
           for (let i = 0; i < 4; i++) {
-            const obstacle = this.add.rectangle(0, 0, 200, 32, 0x00ff00);
+            const obstacle = this.add.rectangle(0, 0, 128, 32, 0x00ff00);
 
             if (i === 0) {
-              obstacle.x = 50;
+              obstacle.fillColor = 0xff0000;
+              obstacle.x = rect.body.position.x;
               obstacle.y = 32;
             } else {
-              obstacle.x = Phaser.Math.Between(0, 960);
-              obstacle.y = i * 150;
+              obstacle.x = this.randomPositionX();
+              obstacle.y = 32 + i * -300;
             }
 
             platforms.add(obstacle);
           }
 
           this.cameras.main.startFollow(rect);
-          this.cameras.main.setDeadzone(540);
+          this.cameras.main.setDeadzone(this.scale.width, 180);
 
           rb.checkCollision.up = false;
           rb.checkCollision.left = false;
@@ -82,25 +109,34 @@ export default () => {
         update() {
           const rb = rect.body as Phaser.Physics.Arcade.Body;
           if (controls.left.isDown) {
-            rb.setVelocityX(-100);
+            rb.setVelocityX(-200);
           }
           if (controls.right.isDown) {
-            rb.setVelocityX(100);
+            rb.setVelocityX(200);
           }
 
           if (rb.velocity.y < 0) {
             score += 1;
             scoreText.setText('Score: ' + score);
           }
+          const scrollY = this.cameras.main.scrollY;
 
           platforms.children.iterate((child: any) => {
-            const scrollY = this.cameras.main.scrollY;
-            if (child.y >= scrollY + 1300) {
-              child.x = Phaser.Math.Between(-295, 490);
-              child.y = scrollY - Phaser.Math.Between(80, 100);
+            if (child.y >= scrollY + 1100) {
+              child.x = this.randomPositionX();
+              child.y = scrollY - 300;
               child.body.updateFromGameObject();
             }
           });
+
+          if (scrollY > 100) {
+            this.cameras.main.stopFollow();
+          }
+
+          if (rect.body.position.y >= scrollY + 1000) {
+            this.game.scene.stop('gameScene');
+            this.game.scene.start('gameOver');
+          }
         }
       }
 
@@ -117,7 +153,7 @@ export default () => {
           mode: Phaser.Scale.FIT,
           autoCenter: Phaser.Scale.CENTER_BOTH,
         },
-        scene: [MainScene, GameScene],
+        scene: [MainScene, GameScene, GameOver],
       });
     })();
   }, []);

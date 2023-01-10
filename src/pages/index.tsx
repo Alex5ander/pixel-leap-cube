@@ -134,6 +134,7 @@ export default () => {
           }
 
           if (rect.body.position.y >= scrollY + 1000) {
+            score = 0;
             this.game.scene.stop('gameScene');
             this.game.scene.start('gameOver');
           }

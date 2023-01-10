@@ -140,13 +140,9 @@ export default () => {
           }
         }
       }
-      window.addEventListener(
-        'deviceorientation',
-        function (e) {
-          this.alert(e.gamma);
-        },
-        true
-      );
+      window.addEventListener('deviceorientation', function (e) {
+        this.alert(e.gamma);
+      });
 
       const game = new Phaser.Game({
         type: Phaser.CANVAS,

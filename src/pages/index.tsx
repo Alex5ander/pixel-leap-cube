@@ -143,7 +143,6 @@ export default () => {
       window.addEventListener(
         'deviceorientation',
         function (e) {
-          e.preventDefault();
           this.alert(e.gamma);
         },
         true

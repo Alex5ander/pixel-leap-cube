@@ -40,7 +40,9 @@ export class GameScene extends Phaser.Scene {
     this.controls = this.input.keyboard.createCursorKeys();
 
     const rect = this.add.rectangle(50, 0, 32, 32, 0xff0000);
-    this.player = this.physics.add.existing(rect);
+    this.player = this.physics.add.existing(
+      rect
+    ) as Phaser.Types.Physics.Arcade.GameObjectWithDynamicBody;
 
     const playerBody = this.player.body;
     playerBody.setBounceY(10);

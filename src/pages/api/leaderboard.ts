@@ -1,6 +1,6 @@
 import { NextApiResponse } from 'next';
 import { MongoClient } from 'mongodb';
-let cluster: MongoClient = null;
+let cluster: MongoClient = globalThis.cluster;
 
 const connectToDataBase = async () => {
   try {

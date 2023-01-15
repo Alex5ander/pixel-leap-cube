@@ -9,8 +9,8 @@ const font: Phaser.Types.GameObjects.Text.TextStyle = {
 export class GameScene extends Phaser.Scene {
   score = 0;
   scoreText: Phaser.GameObjects.Text;
-  platforms: Phaser.Physics.Arcade.StaticGroup;
-  player: Phaser.Types.Physics.Arcade.GameObjectWithDynamicBody;
+  platforms: Phaser.Physics.Arcade.Group;
+  player: Phaser.GameObjects.Rectangle;
   controls: Phaser.Types.Input.Keyboard.CursorKeys;
   jumpingSound: Phaser.Sound.BaseSound;
 
@@ -25,26 +25,15 @@ export class GameScene extends Phaser.Scene {
     );
   }
   randomPositionX() {
-    return Phaser.Math.Between(-170, 170);
+    return Phaser.Math.Between(64, 540 - 64);
   }
   create() {
-    const bg = this.add.rectangle(
-      this.scale.width / 2,
-      this.scale.height / 2,
-      540,
-      960,
-      0x0000ff
-    );
-    bg.setScrollFactor(0);
-
     this.controls = this.input.keyboard.createCursorKeys();
 
-    const rect = this.add.rectangle(50, 0, 32, 32, 0xff0000);
-    this.player = this.physics.add.existing(
-      rect
-    ) as Phaser.Types.Physics.Arcade.GameObjectWithDynamicBody;
+    const rect = this.add.rectangle(this.scale.width / 2, 0, 32, 32, 0xffffff);
+    this.player = this.physics.add.existing(rect);
 
-    const playerBody = this.player.body;
+    const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
     playerBody.setBounceY(10);
     playerBody.setMaxVelocityY(1000);
     playerBody.checkCollision.up = false;
@@ -52,13 +41,12 @@ export class GameScene extends Phaser.Scene {
     playerBody.checkCollision.right = false;
 
     this.jumpingSound = this.sound.add('jumping');
-    this.platforms = this.physics.add.staticGroup();
+    this.platforms = this.physics.add.group();
 
     for (let i = 0; i < 4; i++) {
-      const obstacle = this.add.rectangle(0, 0, 128, 32, 0x00ff00);
+      const obstacle = this.add.rectangle(0, 0, 128, 32, 0xffffff);
 
       if (i === 0) {
-        obstacle.fillColor = 0xff0000;
         obstacle.x = this.player.body.position.x;
         obstacle.y = 32;
       } else {
@@ -67,6 +55,9 @@ export class GameScene extends Phaser.Scene {
       }
 
       this.platforms.add(obstacle);
+      const obstacleBody = obstacle.body as Phaser.Physics.Arcade.Body;
+      obstacleBody.setAllowGravity(false);
+      obstacleBody.setImmovable(true);
     }
 
     this.physics.add.collider(this.player, this.platforms);
@@ -83,7 +74,7 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setDeadzone(this.scale.width * 1.5, 180);
   }
   update() {
-    const playerBody = this.player.body;
+    const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
     if (this.controls.left.isDown) {
       playerBody.setVelocityX(-200);
     }
@@ -110,11 +101,29 @@ export class GameScene extends Phaser.Scene {
       this.score -= 1;
     }
     this.scoreText.setText('Score: ' + this.score);
-    this.platforms.children.iterate((child: any) => {
+
+    this.platforms.children.iterate((child: Phaser.GameObjects.Rectangle) => {
+      const body = child.body as Phaser.Physics.Arcade.Body;
+
       if (child.y >= scrollY + 1100) {
         child.x = this.randomPositionX();
         child.y = scrollY - 300;
-        child.body.updateFromGameObject();
+      }
+
+      if (body.velocity.x === 0 && this.score === 400) {
+        this.player.fillColor = 0xff0000;
+        child.fillColor = 0xff0000;
+        if (child.x > 64) {
+          body.setVelocityX(-100);
+        } else {
+          body.setVelocityX(100);
+        }
+      }
+
+      if (child.x > 540 - 64) {
+        body.setVelocityX(-100);
+      } else if (child.x <= 64) {
+        body.setVelocityX(100);
       }
     });
 
@@ -128,9 +137,9 @@ export class GameScene extends Phaser.Scene {
       this.time.delayedCall(
         300,
         () => {
-          this.score = 0;
           this.scene.stop('gameScene');
-          this.scene.start('gameOver');
+          this.scene.start('gameOver', { score: this.score });
+          this.score = 0;
         },
         null,
         this

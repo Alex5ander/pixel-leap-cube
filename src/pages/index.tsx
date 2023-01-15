@@ -10,7 +10,7 @@ export default () => {
       const { GameOver } = await import('../Scenes/GameOverScene');
 
       new Phaser.Game({
-        type: Phaser.CANVAS,
+        type: Phaser.AUTO,
         width: 540,
         height: 960,
         physics: {

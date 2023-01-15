@@ -33,10 +33,10 @@ export default async function handler(
   const { name, score } = request.query;
 
   if (name && score) {
-    if (name.length > 20 || !/^[a-z]*$/i.test(name.toString())) {
-      return response.status(404).send('');
+    if (name.length > 20 || !/^[a-z ]*$/i.test(name.toString())) {
+      return response.status(403).send('name invalid');
     } else if (!/^[0-9]*$/.test(score.toString())) {
-      return response.status(404).send('');
+      return response.status(403).send('score is not a number');
     }
     addscore(name.toString().trim(), parseInt(score.toString()));
   }

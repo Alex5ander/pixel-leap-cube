@@ -26,41 +26,63 @@ export default () => {
       <Head>
         <title>Placar</title>
       </Head>
-      <center>
-        <h1>Placar</h1>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          {data.map((e, i) => (
-            <div
-              key={e.name}
-              style={{ display: 'flex', alignItems: 'center', gap: 16 }}
-            >
+      {data.length ? (
+        <center>
+          <h1>Placar</h1>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              width: '75%',
+              gap: 16,
+            }}
+          >
+            {data.map((e, i) => (
               <div
+                key={e.name}
                 style={{
-                  borderRadius: 8,
-                  width: 24,
-                  height: 24,
-                  border: '1px solid #000',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
+                  gap: 16,
+                  width: '100%',
                 }}
               >
-                {i}
+                <div
+                  style={{
+                    borderRadius: '50%',
+                    aspectRatio: 1,
+                    padding: 8,
+                    border: '1px solid #000',
+                    display: 'flex',
+                    flex: 'none',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: i === 0 ? 24 : 16,
+                  }}
+                >
+                  <p style={{ margin: 0 }}>{i + 1}</p>
+                </div>
+
+                <div
+                  style={{
+                    flex: '1 0 0',
+                    textAlign: 'left',
+                    textOverflow: 'ellipsis',
+                    overflow: 'clip',
+                  }}
+                >
+                  {e.name}
+                </div>
+
+                <div>{e.score}</div>
               </div>
-
-              <div>{e.name}</div>
-
-              <div>{e.score}</div>
-            </div>
-          ))}
-        </div>
-      </center>
+            ))}
+          </div>
+        </center>
+      ) : (
+        <p style={{ textAlign: 'center' }}>Carregando...</p>
+      )}
     </div>
   );
 };

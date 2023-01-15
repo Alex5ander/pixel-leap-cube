@@ -27,14 +27,16 @@ export default () => {
         <title>Placar</title>
       </Head>
       {data.length ? (
-        <center>
+        <center style={{ padding: 8 }}>
           <h1>Placar</h1>
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'flex-start',
-              width: '75%',
+              padding: 8,
+              border: '1px solid #000',
+              borderRadius: 8,
               gap: 16,
             }}
           >
@@ -46,6 +48,8 @@ export default () => {
                   alignItems: 'center',
                   gap: 16,
                   width: '100%',
+                  borderBottom: '1px solid #000',
+                  padding: '8px 0px',
                 }}
               >
                 <div

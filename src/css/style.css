@@ -5,6 +5,10 @@
   src: url(../fonts/PressStart2P-Regular.ttf);
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0px;
   font-family: 'Press Start 2P';

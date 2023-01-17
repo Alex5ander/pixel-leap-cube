@@ -44,10 +44,5 @@ export class GameOver extends Phaser.Scene {
       },
       this
     );
-
-    const name = prompt('save score?', 'player name');
-    if (name) {
-      saveScore(name, this.score);
-    }
   }
 }

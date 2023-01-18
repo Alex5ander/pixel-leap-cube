@@ -60,7 +60,13 @@ export class GameScene extends Phaser.Scene {
       obstacleBody.setImmovable(true);
     }
 
-    this.physics.add.collider(this.player, this.platforms);
+    this.physics.add.collider(this.player, this.platforms, (_, obstacle) => {
+      if (obstacle.body.checkCollision.up && !obstacle.getData('collide')) {
+        obstacle.setData('collide', true);
+        this.score += 1;
+        this.scoreText.setText('Score: ' + this.score);
+      }
+    });
 
     this.scoreText = this.add.text(16, 16, 'score: 0', {
       fontSize: '32px',
@@ -95,12 +101,22 @@ export class GameScene extends Phaser.Scene {
 
     const scrollY = this.cameras.main.scrollY;
 
-    if (playerBody.velocity.y < 0) {
-      this.score += 1;
-    } else if (this.score > 0 && playerBody.velocity.y < 1000) {
-      this.score -= 1;
+    const array = this.platforms.children.getArray();
+    const fail = array.every((e) => e.body.position.y < playerBody.position.y);
+
+    if (fail) {
+      this.cameras.main.stopFollow();
+      const score = this.score;
+      setTimeout(
+        () => {
+          this.scene.stop('gameScene');
+          this.scene.start('gameOver', { score });
+          this.score = 0;
+        },
+        1000,
+        this
+      );
     }
-    this.scoreText.setText('Score: ' + this.score);
 
     this.platforms.children.iterate((child: Phaser.GameObjects.Rectangle) => {
       const body = child.body as Phaser.Physics.Arcade.Body;
@@ -108,11 +124,12 @@ export class GameScene extends Phaser.Scene {
       if (child.y >= scrollY + 1100) {
         child.x = this.randomPositionX();
         child.y = scrollY - 300;
+        child.setData('collide', false);
       }
 
       const velocity = 96;
 
-      if (body.velocity.x === 0 && this.score === 400) {
+      if (body.velocity.x === 0 && this.score === 15) {
         this.player.fillColor = 0xff0000;
         child.fillColor = 0xff0000;
         if (child.x > 64) {
@@ -127,17 +144,12 @@ export class GameScene extends Phaser.Scene {
       } else if (child.x <= 64) {
         body.setVelocityX(velocity);
       }
+
+      body.updateBounds();
     });
 
     if (playerBody.onFloor()) {
       this.jumpingSound.play();
-    }
-
-    if (playerBody.velocity.y === 1000) {
-      this.cameras.main.stopFollow();
-      this.scene.stop('gameScene');
-      this.scene.start('gameOver', { score: this.score });
-      this.score = 0;
     }
   }
 }

@@ -39,7 +39,7 @@ export class GameOver extends Phaser.Scene {
     this.input.once(
       'pointerup',
       function () {
-        this.scene.stop();
+        this.scene.stop('gameOver');
         this.scene.start('mainScene');
       },
       this

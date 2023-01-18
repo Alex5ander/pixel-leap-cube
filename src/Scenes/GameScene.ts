@@ -30,6 +30,19 @@ export class GameScene extends Phaser.Scene {
   create() {
     this.controls = this.input.keyboard.createCursorKeys();
 
+    const kill = this.physics.add.existing(
+      this.add.rectangle(
+        this.scale.width / 2,
+        this.scale.height + 16,
+        this.scale.width * 10,
+        32,
+        0xffffff
+      ),
+      true
+    );
+
+    kill.setScrollFactor(0);
+
     const rect = this.add.rectangle(this.scale.width / 2, 0, 32, 32, 0xffffff);
     this.player = this.physics.add.existing(rect);
 
@@ -39,6 +52,12 @@ export class GameScene extends Phaser.Scene {
     playerBody.checkCollision.up = false;
     playerBody.checkCollision.left = false;
     playerBody.checkCollision.right = false;
+
+    this.physics.add.collider(this.player, kill, () => {
+      this.scene.stop('gameScene');
+      this.scene.start('gameOver', { score: this.score });
+      this.score = 0;
+    });
 
     this.jumpingSound = this.sound.add('jumping');
     this.platforms = this.physics.add.group();
@@ -106,16 +125,6 @@ export class GameScene extends Phaser.Scene {
 
     if (fail) {
       this.cameras.main.stopFollow();
-      const score = this.score;
-      setTimeout(
-        () => {
-          this.scene.stop('gameScene');
-          this.scene.start('gameOver', { score });
-          this.score = 0;
-        },
-        1000,
-        this
-      );
     }
 
     this.platforms.children.iterate((child: Phaser.GameObjects.Rectangle) => {

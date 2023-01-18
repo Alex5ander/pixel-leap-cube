@@ -23,25 +23,36 @@ export class GameScene extends Phaser.Scene {
       'jumping',
       '/assets/zapsplat_cartoon_springing_boing_jump_jaw_harp_001_72946.mp3'
     );
+    this.load.spritesheet('touch', '/assets/touch.png', {
+      frameWidth: 64,
+      frameHeight: 64,
+      startFrame: 0,
+      endFrame: 3,
+    });
   }
   randomPositionX() {
     return Phaser.Math.Between(64, 540 - 64);
   }
+  gameOver() {
+    this.scene.stop('gameScene');
+    this.scene.start('gameOver', { score: this.score });
+    this.score = 0;
+  }
   create() {
+    const touchSprite = this.add.sprite(100, 100, 'touch');
+    touchSprite.anims.create({
+      key: 'wave',
+      frames: this.anims.generateFrameNumbers('touch', {
+        start: 0,
+        end: 3,
+        first: 0,
+      }),
+      frameRate: 10,
+    });
+    touchSprite.setVisible(false);
+    touchSprite.setScrollFactor(0);
+
     this.controls = this.input.keyboard.createCursorKeys();
-
-    const kill = this.physics.add.existing(
-      this.add.rectangle(
-        this.scale.width / 2,
-        this.scale.height + 16,
-        this.scale.width * 10,
-        32,
-        0xffffff
-      ),
-      true
-    );
-
-    kill.setScrollFactor(0);
 
     const rect = this.add.rectangle(this.scale.width / 2, 0, 32, 32, 0xffffff);
     this.player = this.physics.add.existing(rect);
@@ -53,14 +64,15 @@ export class GameScene extends Phaser.Scene {
     playerBody.checkCollision.left = false;
     playerBody.checkCollision.right = false;
 
-    this.physics.add.collider(this.player, kill, () => {
-      this.scene.stop('gameScene');
-      this.scene.start('gameOver', { score: this.score });
-      this.score = 0;
-    });
-
     this.jumpingSound = this.sound.add('jumping');
     this.platforms = this.physics.add.group();
+
+    this.input.on('pointerdown', (e: Phaser.Input.Pointer) => {
+      touchSprite.setVisible(true);
+      touchSprite.x = e.x;
+      touchSprite.y = e.y;
+      touchSprite.play('wave');
+    });
 
     for (let i = 0; i < 4; i++) {
       const obstacle = this.add.rectangle(0, 0, 128, 32, 0xffffff);
@@ -125,6 +137,10 @@ export class GameScene extends Phaser.Scene {
 
     if (fail) {
       this.cameras.main.stopFollow();
+
+      if (this.player.y - this.cameras.main.worldView.y > 960) {
+        this.gameOver();
+      }
     }
 
     this.platforms.children.iterate((child: Phaser.GameObjects.Rectangle) => {

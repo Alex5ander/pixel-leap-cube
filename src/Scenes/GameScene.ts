@@ -23,7 +23,7 @@ export class GameScene extends Phaser.Scene {
       'jumping',
       '/assets/zapsplat_cartoon_springing_boing_jump_jaw_harp_001_72946.mp3'
     );
-    this.load.spritesheet('touch', '/assets/touch.png', {
+    this.load.spritesheet('touch', '/assets/touchspritesheet.png', {
       frameWidth: 64,
       frameHeight: 64,
       startFrame: 0,
@@ -155,8 +155,6 @@ export class GameScene extends Phaser.Scene {
       const velocity = 96;
 
       if (body.velocity.x === 0 && this.score === 15) {
-        this.player.fillColor = 0xff0000;
-        child.fillColor = 0xff0000;
         if (child.x > 64) {
           body.setVelocityX(-velocity);
         } else {

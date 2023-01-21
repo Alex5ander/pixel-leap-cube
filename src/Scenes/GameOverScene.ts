@@ -16,8 +16,11 @@ const saveScore = async (name: string, score: number) => {
 
 export class GameOver extends Phaser.Scene {
   score = 0;
+  continueMessage = '';
   constructor() {
     super('gameOver');
+    this.continueMessage =
+      window.innerWidth <= 640 ? 'tap to continue' : 'click to continue';
   }
   init(data: { score: number }) {
     this.score = data.score;
@@ -32,6 +35,24 @@ export class GameOver extends Phaser.Scene {
         this.scale.width / 2,
         this.scale.height / 2 + 64,
         'Your score: ' + this.score,
+        font
+      )
+      .setOrigin(0.5);
+
+    this.add
+      .text(
+        this.scale.width / 2,
+        this.scale.height / 2 + 64,
+        'Your score: ' + this.score,
+        font
+      )
+      .setOrigin(0.5);
+
+    this.add
+      .text(
+        this.scale.width / 2,
+        this.scale.height - 48,
+        this.continueMessage,
         font
       )
       .setOrigin(0.5);

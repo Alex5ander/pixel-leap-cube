@@ -23,6 +23,7 @@ export class GameScene extends Phaser.Scene {
       'jumping',
       '/assets/zapsplat_cartoon_springing_boing_jump_jaw_harp_001_72946.mp3'
     );
+    this.load.image('particle', '/assets/particle.png');
     this.load.spritesheet('touch', '/assets/touchspritesheet.png', {
       frameWidth: 64,
       frameHeight: 64,
@@ -56,6 +57,12 @@ export class GameScene extends Phaser.Scene {
 
     const rect = this.add.rectangle(this.scale.width / 2, 0, 32, 32, 0xffffff);
     this.player = this.physics.add.existing(rect);
+
+    const tail = this.add.particles('particle');
+    tail
+      .createEmitter({ lifespan: 300, quantity: 2, follow: this.player })
+      .setAlpha((p, k, t) => 0.5 - t)
+      .start();
 
     const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
     playerBody.setBounceY(10);

@@ -6,12 +6,20 @@ const font: Phaser.Types.GameObjects.Text.TextStyle = {
   fontFamily: '"Press Start 2P"',
 };
 
+const getTexts = () => ({
+  pressMessage: window.innerWidth <= 640 ? 'Touch to start' : 'Click to Start',
+  controlMessage:
+    window.innerWidth <= 640 ? '' : 'use left and right\narrow keys to play',
+});
+
 export class MainScene extends Phaser.Scene {
   pressMessage = '';
+  controlMessage = '';
   constructor() {
     super('mainScene');
-    this.pressMessage =
-      window.innerWidth <= 640 ? 'Touch to start' : 'Click to Start';
+    const { pressMessage, controlMessage } = getTexts();
+    this.pressMessage = pressMessage;
+    this.controlMessage = controlMessage;
   }
   create() {
     this.add
@@ -26,10 +34,20 @@ export class MainScene extends Phaser.Scene {
     this.add
       .text(
         this.scale.width / 2,
-        this.scale.height - 48,
+        this.scale.height - 24,
         'Sound from Zapsplat',
         font
       )
+      .setOrigin(0.5);
+
+    this.add
+      .text(
+        this.scale.width / 2,
+        this.scale.height - 128,
+        this.controlMessage,
+        font
+      )
+      .setAlign('center')
       .setOrigin(0.5);
 
     this.input.once(

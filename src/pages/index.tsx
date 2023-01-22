@@ -29,7 +29,7 @@ export default () => {
 
   return (
     <Head>
-      <title>Jump Game</title>
+      <title>Pixel Leap Cube</title>
     </Head>
   );
 };

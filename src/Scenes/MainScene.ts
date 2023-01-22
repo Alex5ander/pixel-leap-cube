@@ -23,6 +23,10 @@ export class MainScene extends Phaser.Scene {
   }
   create() {
     this.add
+      .text(this.scale.width / 2, 24, 'Pixel Leap Cube', font)
+      .setOrigin(0.5);
+
+    this.add
       .text(
         this.scale.width / 2,
         this.scale.height / 2,

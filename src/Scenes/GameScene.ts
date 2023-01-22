@@ -13,6 +13,7 @@ export class GameScene extends Phaser.Scene {
   player: Phaser.GameObjects.Rectangle;
   controls: Phaser.Types.Input.Keyboard.CursorKeys;
   jumpingSound: Phaser.Sound.BaseSound;
+  velocity = 0;
 
   constructor() {
     super('gameScene');
@@ -40,6 +41,7 @@ export class GameScene extends Phaser.Scene {
     this.score = 0;
   }
   create() {
+    this.velocity = 0;
     const touchSprite = this.add.sprite(100, 100, 'touch');
     touchSprite.anims.create({
       key: 'wave',
@@ -150,6 +152,14 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    if (this.score >= 30) {
+      this.velocity = 200;
+    } else if (this.score >= 20) {
+      this.velocity = 100;
+    } else if (this.score >= 10) {
+      this.velocity = 64;
+    }
+
     this.platforms.children.iterate((child: Phaser.GameObjects.Rectangle) => {
       const body = child.body as Phaser.Physics.Arcade.Body;
 
@@ -159,20 +169,18 @@ export class GameScene extends Phaser.Scene {
         child.setData('collide', false);
       }
 
-      const velocity = 96;
-
-      if (body.velocity.x === 0 && this.score === 15) {
-        if (child.x > 64) {
-          body.setVelocityX(-velocity);
+      if (body.velocity.x === 0 && this.velocity > 0) {
+        if (child.x > 0) {
+          body.setVelocityX(-this.velocity);
         } else {
-          body.setVelocityX(velocity);
+          body.setVelocityX(this.velocity);
         }
       }
 
       if (child.x > 540 - 64) {
-        body.setVelocityX(-velocity);
+        body.setVelocityX(-this.velocity);
       } else if (child.x <= 64) {
-        body.setVelocityX(velocity);
+        body.setVelocityX(this.velocity);
       }
 
       body.updateBounds();

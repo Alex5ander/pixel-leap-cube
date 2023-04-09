@@ -33,7 +33,7 @@ export class GameScene extends Phaser.Scene {
     });
   }
   randomPositionX() {
-    return Phaser.Math.Between(64, 540 - 64);
+    return Phaser.Math.Between(64, this.scale.width - 64);
   }
   gameOver() {
     this.scene.stop('gameScene');
@@ -177,7 +177,7 @@ export class GameScene extends Phaser.Scene {
         }
       }
 
-      if (child.x > 540 - 64) {
+      if (child.x > this.scale.width - 64) {
         body.setVelocityX(-this.velocity);
       } else if (child.x <= 64) {
         body.setVelocityX(this.velocity);

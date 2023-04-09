@@ -17,9 +17,14 @@ export default () => {
           default: 'arcade',
           arcade: { gravity: { y: 981 }, fixedStep: true, timeScale: 0.7 },
         },
+        dom: {
+          createContainer: true,
+        },
         pixelArt: true,
         scale: {
+          parent: document.getElementById('gameArea'),
           mode: Phaser.Scale.FIT,
+          autoRound: true,
           autoCenter: Phaser.Scale.CENTER_BOTH,
         },
         scene: [MainScene, GameScene, GameOver],
@@ -28,8 +33,11 @@ export default () => {
   }, []);
 
   return (
-    <Head>
-      <title>Pixel Leap Cube</title>
-    </Head>
+    <>
+      <Head>
+        <title>Pixel Leap Cube</title>
+      </Head>
+      <div id="gameArea"></div>
+    </>
   );
 };

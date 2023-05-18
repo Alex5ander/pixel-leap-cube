@@ -29,7 +29,6 @@ export default () => {
         },
         scene: [MainScene, GameScene, GameOver],
         title: 'Pixel Leap Cube',
-        autoMobilePipeline: true,
       });
     })();
   }, []);

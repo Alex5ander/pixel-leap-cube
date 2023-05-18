@@ -163,7 +163,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     if (this.score >= 30) {
-      this.velocity = 200;
+      this.velocity = 150;
     } else if (this.score >= 20) {
       this.velocity = 100;
     } else if (this.score >= 10) {

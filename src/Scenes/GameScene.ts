@@ -64,7 +64,7 @@ export class GameScene extends Phaser.Scene {
     touchSprite.setVisible(false);
     touchSprite.setScrollFactor(0);
 
-    this.input.on('', (e: Phaser.Input.Pointer) => {
+    this.input.on('pointerdown', (e: Phaser.Input.Pointer) => {
       touchSprite.setVisible(true);
       touchSprite.x = e.x;
       touchSprite.y = e.y;

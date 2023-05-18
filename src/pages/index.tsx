@@ -28,6 +28,8 @@ export default () => {
           autoCenter: Phaser.Scale.CENTER_BOTH,
         },
         scene: [MainScene, GameScene, GameOver],
+        title: 'Pixel Leap Cube',
+        autoMobilePipeline: true,
       });
     })();
   }, []);

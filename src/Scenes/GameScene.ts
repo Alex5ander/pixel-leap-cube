@@ -19,29 +19,7 @@ export class GameScene extends Phaser.Scene {
     super('gameScene');
     this.score = 0;
   }
-  preload() {
-    var progress = this.add.graphics();
-    this.load.setPath('assets');
-    this.load.on('progress', (value) => {
-      progress.clear();
-      progress.fillStyle(0xffffff, 1);
-      progress.fillRect(0, this.scale.height / 2, this.scale.width * value, 60);
-    });
 
-    this.load.on('complete', () => progress.destroy());
-
-    this.load.audio(
-      'jumping',
-      'zapsplat_cartoon_springing_boing_jump_jaw_harp_001_72946.mp3'
-    );
-    this.load.image('particle', 'particle.png');
-    this.load.spritesheet('touch', 'touchspritesheet.png', {
-      frameWidth: 64,
-      frameHeight: 64,
-      startFrame: 0,
-      endFrame: 3,
-    });
-  }
   randomPositionX() {
     return Phaser.Math.Between(64, this.scale.width - 64);
   }
@@ -87,15 +65,15 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.existing(this.player);
 
     this.add.particles(0, 0, 'particle', {
-      color: [0xfacc22, 0xf89800, 0xf83600, 0x9f0404],
+      color: [0xffffff, 0x000000],
       colorEase: 'quad.out',
       blendMode: Phaser.BlendModes.ADD,
-      lifespan: 400,
-      quantity: 4,
+      lifespan: 200,
+      quantity: 1,
       follow: this.player,
       sortOrderAsc: false,
       scale: { start: 1, end: 0.1 },
-      alpha: { start: 1, end: 0, steps: 0.5 },
+      alpha: { start: 1, end: 0 },
     });
 
     const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
@@ -138,9 +116,11 @@ export class GameScene extends Phaser.Scene {
     );
 
     this.scoreText = this.add.text(16, 16, 'score: 0', {
+      ...font,
       fontSize: '32px',
-      color: font.color,
-      fontFamily: font.fontFamily,
+      color: '#000',
+      backgroundColor: '#fff',
+      padding: { x: 8, y: 8 },
     });
 
     this.scoreText.setScrollFactor(0);

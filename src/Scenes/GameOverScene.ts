@@ -15,9 +15,6 @@ export class GameOver extends Phaser.Scene {
   constructor() {
     super('gameOver');
   }
-  preload() {
-    this.load.html('form', 'assets/form.html');
-  }
   init(data: { score: number }) {
     this.score = data.score;
   }

@@ -20,12 +20,22 @@ export class GameScene extends Phaser.Scene {
     this.score = 0;
   }
   preload() {
+    var progress = this.add.graphics();
+    this.load.setPath('assets');
+    this.load.on('progress', (value) => {
+      progress.clear();
+      progress.fillStyle(0xffffff, 1);
+      progress.fillRect(0, this.scale.height / 2, this.scale.width * value, 60);
+    });
+
+    this.load.on('complete', () => progress.destroy());
+
     this.load.audio(
       'jumping',
-      '/assets/zapsplat_cartoon_springing_boing_jump_jaw_harp_001_72946.mp3'
+      'zapsplat_cartoon_springing_boing_jump_jaw_harp_001_72946.mp3'
     );
-    this.load.image('particle', '/assets/particle.png');
-    this.load.spritesheet('touch', '/assets/touchspritesheet.png', {
+    this.load.image('particle', 'particle.png');
+    this.load.spritesheet('touch', 'touchspritesheet.png', {
       frameWidth: 64,
       frameHeight: 64,
       startFrame: 0,
@@ -40,9 +50,8 @@ export class GameScene extends Phaser.Scene {
     this.scene.start('gameOver', { score: this.score });
     this.score = 0;
   }
-  create() {
-    this.velocity = 0;
-    const touchSprite = this.add.sprite(100, 100, 'touch');
+  createControls() {
+    const touchSprite = this.add.sprite(0, 0, 'touch');
     touchSprite.anims.create({
       key: 'wave',
       frames: this.anims.generateFrameNumbers('touch', {
@@ -55,16 +64,39 @@ export class GameScene extends Phaser.Scene {
     touchSprite.setVisible(false);
     touchSprite.setScrollFactor(0);
 
+    this.input.on('', (e: Phaser.Input.Pointer) => {
+      touchSprite.setVisible(true);
+      touchSprite.x = e.x;
+      touchSprite.y = e.y;
+      touchSprite.play('wave');
+    });
+
     this.controls = this.input.keyboard.createCursorKeys();
+  }
+  create() {
+    this.velocity = 0;
+    this.createControls();
 
-    const rect = this.add.rectangle(this.scale.width / 2, 0, 32, 32, 0xffffff);
-    this.player = this.physics.add.existing(rect);
+    this.player = this.add.rectangle(
+      this.scale.width / 2,
+      0,
+      32,
+      32,
+      0xffffffff
+    );
+    this.physics.add.existing(this.player);
 
-    const tail = this.add.particles('particle');
-    tail
-      .createEmitter({ lifespan: 300, quantity: 2, follow: this.player })
-      .setAlpha((p, k, t) => 0.5 - t)
-      .start();
+    this.add.particles(0, 0, 'particle', {
+      color: [0xfacc22, 0xf89800, 0xf83600, 0x9f0404],
+      colorEase: 'quad.out',
+      blendMode: Phaser.BlendModes.ADD,
+      lifespan: 400,
+      quantity: 4,
+      follow: this.player,
+      sortOrderAsc: false,
+      scale: { start: 1, end: 0.1 },
+      alpha: { start: 1, end: 0, steps: 0.5 },
+    });
 
     const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
     playerBody.setBounceY(10);
@@ -75,13 +107,6 @@ export class GameScene extends Phaser.Scene {
 
     this.jumpingSound = this.sound.add('jumping');
     this.platforms = this.physics.add.group();
-
-    this.input.on('pointerdown', (e: Phaser.Input.Pointer) => {
-      touchSprite.setVisible(true);
-      touchSprite.x = e.x;
-      touchSprite.y = e.y;
-      touchSprite.play('wave');
-    });
 
     for (let i = 0; i < 4; i++) {
       const obstacle = this.add.rectangle(0, 0, 128, 32, 0xffffff);
@@ -118,6 +143,7 @@ export class GameScene extends Phaser.Scene {
 
     this.cameras.main.startFollow(this.player);
     this.cameras.main.setDeadzone(this.scale.width * 1.5, 180);
+    this.cameras.main.flash(1000);
   }
   update() {
     const playerBody = this.player.body as Phaser.Physics.Arcade.Body;

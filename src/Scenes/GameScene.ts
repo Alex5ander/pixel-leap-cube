@@ -125,13 +125,17 @@ export class GameScene extends Phaser.Scene {
       obstacleBody.setImmovable(true);
     }
 
-    this.physics.add.collider(this.player, this.platforms, (_, obstacle) => {
-      if (obstacle.body.checkCollision.up && !obstacle.getData('collide')) {
-        obstacle.setData('collide', true);
-        this.score += 1;
-        this.scoreText.setText('Score: ' + this.score);
+    this.physics.add.collider(
+      this.player,
+      this.platforms,
+      (_, obstacle: Phaser.Types.Physics.Arcade.GameObjectWithBody) => {
+        if (obstacle.body.checkCollision.up && !obstacle.getData('collide')) {
+          obstacle.setData('collide', true);
+          this.score += 1;
+          this.scoreText.setText('Score: ' + this.score);
+        }
       }
-    });
+    );
 
     this.scoreText = this.add.text(16, 16, 'score: 0', {
       fontSize: '32px',
@@ -186,31 +190,33 @@ export class GameScene extends Phaser.Scene {
       this.velocity = 64;
     }
 
-    this.platforms.children.iterate((child: Phaser.GameObjects.Rectangle) => {
-      const body = child.body as Phaser.Physics.Arcade.Body;
+    this.platforms
+      .getChildren()
+      .forEach((child: Phaser.GameObjects.Rectangle) => {
+        const body = child.body as Phaser.Physics.Arcade.Body;
 
-      if (child.y >= scrollY + 1100) {
-        child.x = this.randomPositionX();
-        child.y = scrollY - 300;
-        child.setData('collide', false);
-      }
+        if (child.y >= scrollY + 1100) {
+          child.x = this.randomPositionX();
+          child.y = scrollY - 300;
+          child.setData('collide', false);
+        }
 
-      if (body.velocity.x === 0 && this.velocity > 0) {
-        if (child.x > 0) {
+        if (body.velocity.x === 0 && this.velocity > 0) {
+          if (child.x > 0) {
+            body.setVelocityX(-this.velocity);
+          } else {
+            body.setVelocityX(this.velocity);
+          }
+        }
+
+        if (child.x > this.scale.width - 64) {
           body.setVelocityX(-this.velocity);
-        } else {
+        } else if (child.x <= 64) {
           body.setVelocityX(this.velocity);
         }
-      }
 
-      if (child.x > this.scale.width - 64) {
-        body.setVelocityX(-this.velocity);
-      } else if (child.x <= 64) {
-        body.setVelocityX(this.velocity);
-      }
-
-      body.updateBounds();
-    });
+        body.updateBounds();
+      });
 
     if (playerBody.onFloor()) {
       this.jumpingSound.play();

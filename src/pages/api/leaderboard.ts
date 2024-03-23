@@ -1,25 +1,9 @@
 import { NextApiResponse } from 'next';
-import { MongoClient } from 'mongodb';
-let cluster: MongoClient = globalThis.cluster;
-
-const connectToDataBase = async () => {
-  try {
-    cluster = await MongoClient.connect(process.env.DATABASEURI!);
-    cluster.on('close', () => {
-      console.log('connection closed');
-      cluster = null;
-    });
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
+import clientPromisse from '../../lib/mongodb';
 
 const getLeaderBoard = async () => {
-  if (!cluster) {
-    await connectToDataBase();
-  }
-  const db = cluster.db('jump-game');
+  const client = await clientPromisse;
+  const db = client.db('jump-game');
   const collection = db.collection('leaderboard');
   const leaderboard = collection.find(
     {},

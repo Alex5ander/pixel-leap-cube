@@ -20,6 +20,6 @@
   },
   "devDependencies": {
     "@types/react": "18.2.6",
-    "vercel": "^29.3.3"
+    "vercel": "^33.6.1"
   }
 }

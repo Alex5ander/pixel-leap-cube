@@ -1,6 +1,4 @@
-import Phaser from 'phaser';
-
-const font: Phaser.Types.GameObjects.Text.TextStyle = {
+const font = {
   color: '#fff',
   fontSize: '24px',
   fontFamily: '"Press Start 2P"',
@@ -8,11 +6,16 @@ const font: Phaser.Types.GameObjects.Text.TextStyle = {
 
 export class GameScene extends Phaser.Scene {
   score = 0;
-  scoreText: Phaser.GameObjects.Text;
-  platforms: Phaser.Physics.Arcade.Group;
-  player: Phaser.GameObjects.Rectangle;
-  controls: Phaser.Types.Input.Keyboard.CursorKeys;
-  jumpingSound: Phaser.Sound.BaseSound;
+  /** Phaser.GameObjects.Text */
+  scoreText = null;
+  /** Phaser.Physics.Arcade.Group */
+  platforms = null;
+  /** Phaser.GameObjects.Rectangle */
+  player = null;
+  /** Phaser.Types.Input.Keyboard.CursorKeys */
+  controls = null;
+  /** Phaser.Sound.BaseSound */
+  jumpingSound = null;
   velocity = 0;
 
   constructor() {
@@ -42,7 +45,7 @@ export class GameScene extends Phaser.Scene {
     touchSprite.setVisible(false);
     touchSprite.setScrollFactor(0);
 
-    this.input.on('pointerdown', (e: Phaser.Input.Pointer) => {
+    this.input.on('pointerdown', (e) => {
       touchSprite.setVisible(true);
       touchSprite.x = e.x;
       touchSprite.y = e.y;
@@ -76,7 +79,8 @@ export class GameScene extends Phaser.Scene {
       alpha: { start: 1, end: 0 },
     });
 
-    const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
+    /** Phaser.Physics.Arcade.Body */
+    const playerBody = this.player.body;
     playerBody.setBounceY(10);
     playerBody.setMaxVelocityY(1000);
     playerBody.checkCollision.up = false;
@@ -98,7 +102,8 @@ export class GameScene extends Phaser.Scene {
       }
 
       this.platforms.add(obstacle);
-      const obstacleBody = obstacle.body as Phaser.Physics.Arcade.Body;
+      /** Phaser.Physics.Arcade.Body */
+      const obstacleBody = obstacle.body;
       obstacleBody.setAllowGravity(false);
       obstacleBody.setImmovable(true);
     }
@@ -106,7 +111,7 @@ export class GameScene extends Phaser.Scene {
     this.physics.add.collider(
       this.player,
       this.platforms,
-      (_, obstacle: Phaser.Types.Physics.Arcade.GameObjectWithBody) => {
+      (_, obstacle) => {
         if (obstacle.body.checkCollision.up && !obstacle.getData('collide')) {
           obstacle.setData('collide', true);
           this.score += 1;
@@ -130,7 +135,8 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.flash(1000);
   }
   update() {
-    const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
+    /** Phaser.Physics.Arcade.Body */
+    const playerBody = this.player.body;
     if (this.controls.left.isDown) {
       playerBody.setVelocityX(-200);
     }
@@ -172,8 +178,9 @@ export class GameScene extends Phaser.Scene {
 
     this.platforms
       .getChildren()
-      .forEach((child: Phaser.GameObjects.Rectangle) => {
-        const body = child.body as Phaser.Physics.Arcade.Body;
+      .forEach((child) => {
+        /** Phaser.Physics.Arcade.Body */
+        const body = child.body;
 
         if (child.y >= scrollY + 1100) {
           child.x = this.randomPositionX();

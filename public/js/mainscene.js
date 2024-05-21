@@ -1,6 +1,4 @@
-import Phaser from 'phaser';
-
-const font: Phaser.Types.GameObjects.Text.TextStyle = {
+const font = {
   color: '#fff',
   fontSize: '24px',
   fontFamily: '"Press Start 2P"',
@@ -12,15 +10,10 @@ const getTexts = () => ({
     window.innerWidth <= 640 ? '' : 'use left and right\narrow keys to play',
 });
 
-const getScore = async () => {
-  const request = await fetch('/api/leaderboard');
-  return request.json();
-};
-
 export class MainScene extends Phaser.Scene {
   pressMessage = '';
   controlMessage = '';
-  leaderboard: { name: string; score: number }[] = [];
+  leaderboard = [];
 
   constructor() {
     super('mainScene');
@@ -65,7 +58,7 @@ export class MainScene extends Phaser.Scene {
       graphics.destroy();
       text.destroy();
     });
-    this.load.html('form', 'form.html');
+
     this.load.audio(
       'jumping',
       'zapsplat_cartoon_springing_boing_jump_jaw_harp_001_72946.mp3'
@@ -81,28 +74,6 @@ export class MainScene extends Phaser.Scene {
   create() {
     const centerX = this.scale.width / 2;
     const centerY = this.scale.height / 2;
-    const offsetY = 64;
-    const spacing = 24;
-
-    getScore().then((e) => {
-      this.add
-        .text(centerX, centerY + 48, 'Top 10 players', font)
-        .setOrigin(0.5);
-
-      e.forEach((e, i) => {
-        const { name, score } = e;
-        const s = 28 - Math.floor(name.length + score.toString().length + 1);
-
-        this.add
-          .text(
-            centerX,
-            centerY + offsetY + spacing * (i + 1),
-            `${i + 1}.${'_'.repeat(2)}${name}${'_'.repeat(s)}${score}`,
-            { ...font, fontSize: '16px' }
-          )
-          .setOrigin(0.5);
-      });
-    });
 
     this.add.text(centerX, 24, this.game.config.gameTitle, font).setOrigin(0.5);
 
